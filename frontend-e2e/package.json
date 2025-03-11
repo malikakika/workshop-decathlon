@@ -1,0 +1,10 @@
+{
+  "name": "@pwa5-decathlon/frontend-e2e",
+  "version": "0.0.1",
+  "private": true,
+  "nx": {
+    "implicitDependencies": [
+      "@pwa5-decathlon/frontend"
+    ]
+  }
+}

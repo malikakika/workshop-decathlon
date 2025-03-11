@@ -1,0 +1,55 @@
+{
+  "name": "@pwa5-decathlon/backend",
+  "version": "0.0.1",
+  "private": true,
+  "nx": {
+    "targets": {
+      "build": {
+        "executor": "nx:run-commands",
+        "options": {
+          "command": "webpack-cli build",
+          "args": [
+            "node-env=production"
+          ]
+        },
+        "configurations": {
+          "development": {
+            "args": [
+              "node-env=development"
+            ]
+          }
+        }
+      },
+      "serve": {
+        "executor": "@nx/js:node",
+        "defaultConfiguration": "development",
+        "dependsOn": [
+          "build"
+        ],
+        "options": {
+          "buildTarget": "@pwa5-decathlon/backend:build",
+          "runBuildTargetDependencies": false
+        },
+        "configurations": {
+          "development": {
+            "buildTarget": "@pwa5-decathlon/backend:build:development"
+          },
+          "production": {
+            "buildTarget": "@pwa5-decathlon/backend:build:production"
+          }
+        }
+      },
+      "test": {
+        "options": {
+          "passWithNoTests": true
+        }
+      }
+    }
+  },
+  "dependencies": {
+    "@nestjs/config": "^4.0.1",
+    "@nestjs/typeorm": "^11.0.0",
+    "pg": "^8.13.3",
+    "typeorm": "^0.3.21"
+  }
+}
