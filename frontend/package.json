@@ -3,6 +3,10 @@
   "version": "0.0.1",
   "private": true,
   "dependencies": {
-    "next": "~15.1.4"
+    "@vtmn/react": "^4.2.0",
+    "next": "^13.5.8",
+    "next-pwa": "^5.6.0",
+    "react": "18",
+    "react-dom": "18"
   }
 }

@@ -1,0 +1,11 @@
+{
+    "name": "PWA Decathlon",
+    "short_name": "PWA Decathlon",
+    "description": "Une PWA Next.js optimisée avec Nx",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#5E365F"
+ 
+  }
+  
