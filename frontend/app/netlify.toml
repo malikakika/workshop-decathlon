@@ -5,6 +5,7 @@
   functions = "frontend/dc5"
 
 [build.environment]
+  NODE_VERSION="21.7.1"
   NPM_FLAGS = "--legacy-peer-deps"
-  NX_CLI_WRAPPER = "true"
+  NX_CLI_WRAPPER = "false"
   NX_SKIP_NX_CACHE = "true"
