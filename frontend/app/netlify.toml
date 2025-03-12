@@ -1,0 +1,10 @@
+[build]
+  base = "frontend"
+  command = "npm install --legacy-peer-deps && npx nx build frontend --skip-nx-cache"
+  publish = "frontend/.next"
+  functions = "frontend/dc5"
+
+[build.environment]
+  NPM_FLAGS = "--legacy-peer-deps"
+  NX_CLI_WRAPPER = "true"
+  NX_SKIP_NX_CACHE = "true"
