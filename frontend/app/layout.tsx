@@ -5,7 +5,6 @@ import { VtmnLink } from "@vtmn/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, Map, User, Route } from "lucide-react";
-import Image from 'next/image'
 import "./global.css";
 
 export default function RootLayout({ children }: { children: ReactNode }) {
@@ -17,12 +16,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="fr">
       <body className="min-h-screen flex flex-col bg-gray-50">
-        <header className="relative w-full h-[60px] bg-white shadow-md flex justify-between items-center px-6">
-          <h1 className="text-xl font-bold text-gray-900"> Marche & HopSpots</h1>
-          <Image src="/logo-decathlon.png" alt="Decathlon Logo" width={120} height={40} />
-        </header>
+        
 
-        <main className="flex-grow p-2 pb-20">{children}</main>
+        <main className="flex-grow  pb-20">{children}</main>
 
         <nav className="bg-white shadow-md fixed bottom-0 w-full flex justify-around items-center py-4 border-t">
           {[
