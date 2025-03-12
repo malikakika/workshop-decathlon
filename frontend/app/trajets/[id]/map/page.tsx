@@ -47,9 +47,12 @@ export default function MapPage() {
 
   const [userLocation, setUserLocation] = useState<LatLngExpression | null>(null);
   const [steps, setSteps] = useState(0);
+  const [sensor, setSensor] = useState<any | null>(null);
 
   // 📡 Géolocalisation en temps réel
   useEffect(() => {
+    if (typeof window === "undefined") return;
+
     let watchId: number;
 
     if ("geolocation" in navigator) {
@@ -69,27 +72,46 @@ export default function MapPage() {
     };
   }, []);
 
-  // 🏃‍♂️ Utilisation du **Step Counter natif**
+  // 🏃‍♂️ Gestion du Step Counter natif
   useEffect(() => {
-    if ("permissions" in navigator) {
-      navigator.permissions.query({ name: "accelerometer" as PermissionName }).then((result) => {
-        if (result.state === "denied") {
+    if (typeof window === "undefined") return;
+
+    async function setupStepCounter() {
+      if (!("permissions" in navigator)) {
+        console.warn("Permissions API non supportée");
+        return;
+      }
+
+      try {
+        const permissionStatus = await navigator.permissions.query({ name: "accelerometer" as PermissionName });
+        if (permissionStatus.state === "denied") {
           console.warn("Accès aux capteurs refusé !");
           return;
         }
 
-        try {
-          const sensor = new (window as any).StepCounter();
-          sensor.start();
-          sensor.onreading = () => {
-            setSteps(sensor.steps);
+        if ("StepCounter" in window) {
+          const stepSensor = new (window as any).StepCounter();
+          stepSensor.start();
+          stepSensor.onreading = () => {
+            setSteps(stepSensor.steps);
           };
-        } catch (error) {
-          console.error("StepCounter non supporté", error);
+          setSensor(stepSensor);
+        } else {
+          console.warn("StepCounter non supporté par cet appareil");
         }
-      });
+      } catch (error) {
+        console.error("Erreur lors de l'activation du StepCounter", error);
+      }
     }
-  }, []);
+
+    setupStepCounter();
+
+    return () => {
+      if (sensor) {
+        sensor.stop();
+      }
+    };
+  }, [sensor]);
 
   if (!trajet) {
     return <p className="text-red-500 p-6 text-center">🚨 Trajet non trouvé</p>;
