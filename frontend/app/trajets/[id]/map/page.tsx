@@ -1,120 +1,139 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { MapContainer, TileLayer, Marker, Polyline } from "react-leaflet";
+import { LatLngExpression, Icon } from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { LatLngExpression } from "leaflet";
 
+// 📍 Définition des trajets
 const trajets: Record<string, { name: string; coordinates: LatLngExpression[] }> = {
   "1": {
     name: "Parcours Nature",
     coordinates: [
-      [48.8584, 2.2945], 
-      [48.8606, 2.3376], 
-      [48.8566, 2.3522],
+      [48.8584, 2.2945], // Tour Eiffel
+      [48.8606, 2.3376], // Louvre
+      [48.8566, 2.3522], // Notre-Dame
     ],
   },
   "2": {
     name: "Tour de la Ville",
     coordinates: [
-      [48.8566, 2.3522], 
-      [48.8625, 2.3696], 
-      [48.8530, 2.3499],
+      [48.8566, 2.3522],
+      [48.8625, 2.3696],
+      [48.853, 2.3499],
     ],
   },
 };
 
+// 🎨 Icônes personnalisées
+const startIcon = new Icon({
+  iconUrl: "/assets/start.svg",
+  iconSize: [30, 30],
+});
+const finishIcon = new Icon({
+  iconUrl: "/assets/finish.svg",
+  iconSize: [30, 30],
+});
+const userIcon = new Icon({
+  iconUrl: "/assets/user.svg",
+  iconSize: [25, 25],
+});
+
 export default function MapPage() {
   const params = useParams();
-  const router = useRouter();
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
   const trajet = trajets[id as keyof typeof trajets];
 
   const [userLocation, setUserLocation] = useState<LatLngExpression | null>(null);
   const [steps, setSteps] = useState(0);
-  const [lastAcceleration, setLastAcceleration] = useState({ x: 0, y: 0, z: 0 });
 
+  // 📡 Géolocalisation en temps réel
   useEffect(() => {
+    let watchId: number;
+
     if ("geolocation" in navigator) {
-      navigator.geolocation.watchPosition(
+      watchId = navigator.geolocation.watchPosition(
         (position) => {
           setUserLocation([position.coords.latitude, position.coords.longitude]);
         },
-        (error) => console.error(error),
+        (error) => console.error("Erreur de géolocalisation :", error),
         { enableHighAccuracy: true }
       );
     }
 
-    // Détection des pas avec DeviceMotion API
-    const handleMotion = (event: DeviceMotionEvent) => {
-      if (event.accelerationIncludingGravity) {
-        const x = event.accelerationIncludingGravity.x ?? 0;
-        const y = event.accelerationIncludingGravity.y ?? 0;
-        const z = event.accelerationIncludingGravity.z ?? 0;
-
-        const deltaX = Math.abs(x - lastAcceleration.x);
-        const deltaY = Math.abs(y - lastAcceleration.y);
-        const deltaZ = Math.abs(z - lastAcceleration.z);
-
-        if (deltaX + deltaY + deltaZ > 2) {
-          setSteps((prev) => prev + 1);
-        }
-        setLastAcceleration({ x, y, z });
+    return () => {
+      if (watchId) {
+        navigator.geolocation.clearWatch(watchId);
       }
     };
+  }, []);
 
-    window.addEventListener("devicemotion", handleMotion);
+  // 🏃‍♂️ Utilisation du **Step Counter natif**
+  useEffect(() => {
+    if ("permissions" in navigator) {
+      navigator.permissions.query({ name: "accelerometer" as PermissionName }).then((result) => {
+        if (result.state === "denied") {
+          console.warn("Accès aux capteurs refusé !");
+          return;
+        }
 
-    return () => {
-      window.removeEventListener("devicemotion", handleMotion);
-    };
-  }, [lastAcceleration]);
+        try {
+          const sensor = new (window as any).StepCounter();
+          sensor.start();
+          sensor.onreading = () => {
+            setSteps(sensor.steps);
+          };
+        } catch (error) {
+          console.error("StepCounter non supporté", error);
+        }
+      });
+    }
+  }, []);
 
   if (!trajet) {
     return <p className="text-red-500 p-6 text-center">🚨 Trajet non trouvé</p>;
   }
 
   return (
-    <div className="relative flex flex-col items-center justify-center min-h-screen bg-gray-50 p-4">
-      {/* 🌍 Carte réduite et bien intégrée */}
-      <div className="w-full max-w-md rounded-xl overflow-hidden shadow-lg">
+    <div className="relative w-full h-screen">
+      {/* 🌍 Carte en arrière-plan */}
+      <div className="absolute inset-0 z-0">
         <MapContainer
           key={`map-${id}`}
           center={trajet.coordinates[0] as LatLngExpression}
           zoom={14}
-          style={{ height: "50vh", width: "100%" }}
-          className="rounded-xl border border-gray-200"
+          className="w-full h-full"
         >
-          <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-          {userLocation && <Marker position={userLocation} />}
-          <Polyline positions={trajet.coordinates} pathOptions={{ color: "#0077ff" }} />
+          <TileLayer url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png" />
+          <Polyline positions={trajet.coordinates} pathOptions={{ color: "#3743B9", dashArray: "5, 10" }} />
+          <Marker position={trajet.coordinates[0]} icon={startIcon} />
+          <Marker position={trajet.coordinates[trajet.coordinates.length - 1]} icon={finishIcon} />
+          {userLocation && <Marker position={userLocation} icon={userIcon} />}
         </MapContainer>
       </div>
 
-      {/* 📊 Infos sur l'activité */}
-      <div className="w-full max-w-md mt-6 bg-white p-4 rounded-xl shadow-md text-center">
-        <h3 className="text-xl font-bold text-gray-900">🏃‍♂️ Activité en cours</h3>
-        <p className="text-gray-600">{trajet.name}</p>
-        <div className="flex justify-around items-center mt-4">
+      {/* 📊 Bloc des compteurs (position fixe en bas) */}
+      <div className="absolute bottom-[280px] left-1/2 transform -translate-x-1/2 w-[90%] max-w-md bg-white p-6 rounded-xl shadow-lg text-center">
+        <div className="flex justify-between items-center">
+          <h3 className="text-lg font-bold text-gray-900">🏆 Weekly Record !</h3>
+          <button className="bg-[#3743B9] text-white px-3 py-1 text-sm rounded-full">Voir +</button>
+        </div>
+        <div className="flex justify-between items-center mt-4 text-center">
           <div className="flex flex-col items-center">
-            <h4 className="text-2xl font-bold text-blue-600">{steps}</h4>
-            <p className="text-sm text-gray-500">Pas effectués</p>
+            <h4 className="text-xl font-bold text-gray-900">5</h4>
+            <p className="text-xs text-gray-500">Activités</p>
           </div>
           <div className="flex flex-col items-center">
-            <h4 className="text-2xl font-bold text-green-600">{(steps * 0.8).toFixed(2)} m</h4>
-            <p className="text-sm text-gray-500">Distance parcourue</p>
+            <h4 className="text-xl font-bold text-gray-900">2h 54m</h4>
+            <p className="text-xs text-gray-500">Temps</p>
+          </div>
+          <div className="flex flex-col items-center">
+            <h4 className="text-xl font-bold text-gray-900">{steps}</h4>
+            <p className="text-xs text-gray-500">Pas effectués</p>
           </div>
         </div>
       </div>
-
-      {/* 🔙 Bouton de retour mieux positionné */}
-      <button
-        className="absolute bottom-6 left-6 px-4 py-2 bg-red-600 text-white rounded-full shadow-lg text-sm font-semibold"
-        onClick={() => router.push("/trajets")}
-      >
-        ⬅️ Quitter
-      </button>
     </div>
   );
 }
