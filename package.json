@@ -12,7 +12,8 @@
     "@nx/module-federation": "^20.5.0",
     "@vtmn/react": "^4.2.0",
     "axios": "^1.6.0",
-    "eslint-config-next": "^14.2.16",
+    "eslint-config-next": "^14.0.0"
+,
     "framer-motion": "^12.5.0",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.479.0",
