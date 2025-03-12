@@ -2,7 +2,9 @@
   "name": "@pwa5-decathlon/source",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {},
+"scripts": {
+  "build": "npx nx build frontend"
+},
   "private": true,
   "dependencies": {
     "@nestjs/common": "^10.0.2",

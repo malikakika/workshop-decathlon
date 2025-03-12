@@ -1,3 +1,11 @@
 [build]
-  command = "npm install --legacy-peer-deps && npx nx run frontend:build"
+  command = "npm install --legacy-peer-deps && npx nx build frontend"
   publish = "frontend/.next"
+  base = "frontend"
+
+[build.environment]
+  NODE_VERSION = "18"
+  NPM_FLAGS = "--legacy-peer-deps"
+
+[functions]
+  node_bundler = "esbuild"
