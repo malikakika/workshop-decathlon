@@ -32,7 +32,8 @@
       "node"
     ],
     "outDir": "dist",
-    "rootDir": "."
+    "rootDir": ".",
+    "skipLibCheck": true
   },
   "include": [
     "app/**/*.ts",
