@@ -1,0 +1,3 @@
+[build]
+  command = "npx nx run frontend:build"
+  publish = "frontend/.next"
