@@ -6,6 +6,14 @@ const nextConfig = withNx(withPWA({
   pwa: {
     dest: 'public',
     disable: process.env.NODE_ENV === 'development',
+    register: true,
+    skipWaiting: true,
+  },
+  images: {
+    domains: ['your-image-host.com'], // Assure-toi que toutes les images proviennent de sources autorisées
+  },
+  experimental: {
+    forceSwcTransforms: true, // Optimisation supplémentaire
   },
 }));
 
