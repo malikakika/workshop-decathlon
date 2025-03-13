@@ -9,12 +9,8 @@ const nextConfig = withNx(withPWA({
     register: true,
     skipWaiting: true,
   },
-  images: {
-    domains: ['your-image-host.com'], // Assure-toi que toutes les images proviennent de sources autorisées
-  },
-  experimental: {
-    forceSwcTransforms: true, // Optimisation supplémentaire
-  },
+  trailingSlash: true, // ✅ Ajoute un `/` à la fin des URLs pour éviter les erreurs de routage
+  output: 'standalone', // ✅ Utile si tu utilises un hébergement type Render, Vercel ou Netlify
 }));
 
 module.exports = nextConfig;
